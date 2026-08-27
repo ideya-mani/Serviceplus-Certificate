@@ -126,12 +126,19 @@ $(document).ready(function () {
             dateText = "22nd December 2016";
         }
 
-        // Update label
-        $('label[for="341694"]').html(
-            'Whether the candidate or his/her father or paternal grandfather was continuously residing in the UT of Puducherry prior to <b>' +
-            dateText +
-            '</b>'
-        );
+
+        // Find label by its text instead of ID
+       // $('label').filter(function () {
+         //   return $(this).text().trim().startsWith(
+         //       'Whether the candidate or his/her father or paternal grandfather'
+          //  );
+      //  }).html(
+       //     'Whether the candidate or his/her father or paternal grandfather was continuously residing in the UT of Puducherry prior to <b>' +
+        //    dateText +
+       //     '</b>'
+       // );
+    // Set dateText into input field
+        $('#345778').val(dateText).prop('disabled', true);
     }
 
     // Run when Central values change
@@ -1434,6 +1441,12 @@ $(document).ready(function() {
 // ============================================
 // asset details
 // ============================================
+function initializeAssetDetails() {
+  // var ews = $('#339504_4').is(':checked');
+
+  // if (!ews) {
+  //   return;
+  // }
 
 var relations = {
     0: "Self",
@@ -1459,6 +1472,13 @@ $("[id^='344523_']").each(function () {
          });
 
 });
+
+  $("[id^='344524_']").attr("placeholder", "Enter area in acres (e.g., 2.50)");
+  $("[id^='344525_']").attr("placeholder", "Enter area in sq.ft (e.g., 1200)");
+  $("[id^='344526_']").attr("placeholder", "Enter area in sq.yd (e.g., 150)");
+  $("[id^='344527_']").attr("placeholder", "Enter area in sq.yd (e.g., 200)");
+}
+
 // ============================================
 // total value calculate
 // ============================================
@@ -1490,29 +1510,26 @@ function calculateAssetTotals() {
 
 }
 
-// Recalculate whenever any value changes
+// Recalculate when an EWS asset value changes
 $(document).on("input", "[id^='344524_'], [id^='344525_'], [id^='344526_'], [id^='344527_']", function () {
+  if ($('#339504_4').is(':checked')) {
     calculateAssetTotals();
+  }
 });
 
-// Initial calculation
-calculateAssetTotals();
+if ($('#339504_4').is(':checked')) {
+  calculateAssetTotals();
+}
+let ewscheck = $('#339504_4').is(':checked');
 
-// ============================================
-// asset placeholder
-// ============================================
+ewscheck && initializeAssetDetails();
 
-// Agricultural Land
-$("[id^='344524_']").attr("placeholder", "Enter area in acres (e.g., 2.50)");
-
-// Residential Flat
-$("[id^='344525_']").attr("placeholder", "Enter area in sq.ft (e.g., 1200)");
-
-// Residential Plot in Notified Municipal Areas
-$("[id^='344526_']").attr("placeholder", "Enter area in sq.yd (e.g., 150)");
-
-// Residential Plot in Areas Other Than Notified Municipalities
-$("[id^='344527_']").attr("placeholder", "Enter area in sq.yd (e.g., 200)");
+$(document).on('change', '#339504_4', function () {
+  if ($(this).is(':checked')) {
+    initializeAssetDetails();
+    calculateAssetTotals();
+  }
+});
 
 // ============================================
 // EWS Details - Others toggle
@@ -1540,6 +1557,7 @@ $(document).ready(function() {
     $('input[name="343207"]').on('change', toggleEWSOthersFields);
     toggleEWSOthersFields(); // Initial state
 });
+
 // ============================================
 // Hide Central Caste Details section and extra fields always
 // ============================================
@@ -2475,7 +2493,7 @@ function autoSetSalutation() {
 // =============================================
 var resFields = ['341677', '341678', '341679', '341751', '341682'];
 
-var stateresfield = ['343178','343179'];
+var stateresfield = ['345778','343178','343179'];
 var centralresfield = ['343182','343184'];
 
 var certFields = ['341698', '341880', '341703', '341700', '341701', '341697', '341702', '341704', '341705', '341706', '341707'];
@@ -2484,6 +2502,12 @@ function toggle(fields, show) {
     fields.forEach(function(id) {
         var $el = $('#' + id);
         show ? $el.closest('.trow').show() : ($el.closest('.trow').hide() && $el.val(''));
+    });
+}
+function cutcastetoggle(fields, show) {
+    fields.forEach(function(id) {
+        var $el = $('#' + id);
+        show ? $el.closest('.trow').show() : ($el.closest('.trow').hide());
     });
 }
 // Get the cutoff date based on applicant's caste selection
@@ -2542,6 +2566,8 @@ function updateCutoffDateField() {
 var cutoffVisibilityTimer;
 
 function cutoffupdateVisibility() {
+    let cutoffcasteEducational = $('#339504_5').is(':checked');
+    let cutoffcasteEmployment = $('#339504_6').is(':checked');
     var resYes = $('#341694_1').is(':checked');
     var resNo = $('#341694_2').is(':checked');
     var certYes = $('#341696_1').is(':checked');
@@ -2551,6 +2577,7 @@ function cutoffupdateVisibility() {
     $('label[for="341873"]').closest('.tdata').toggle(resYes);
  
     toggle(resFields, resYes);
+    if(cutoffcasteEducational || cutoffcasteEmployment) cutcastetoggle(stateresfield, resYes);
     $("label:contains('Do you have Caste / Community certificate')").closest('.trow').toggle(resNo);
     toggle(certFields, resNo && certYes);
 
